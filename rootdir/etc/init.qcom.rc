@@ -25,6 +25,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+import init.target.rc
 import init.qcom.usb.rc
 
 on early-init
@@ -341,6 +342,11 @@ service cnd /system/bin/cnd
     class late_start
     socket cnd stream 660 root radio
     disabled
+
+service irsc_util /system/bin/irsc_util "/etc/sec_config"
+    class main
+    user root
+    oneshot
 
 service rmt_storage /system/bin/rmt_storage
     class core

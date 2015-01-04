@@ -36,10 +36,14 @@ PRODUCT_COPY_FILES += \
     device/samsung/jflte/audio/audio_policy.conf:system/etc/audio_policy.conf \
     frameworks/native/data/etc/android.hardware.audio.low_latency.xml:system/etc/permissions/android.hardware.audio.low_latency.xml
 
+# Media : use AwesomePlayer as default. This overrides the default player (NuPlayer)
+PRODUCT_PROPERTY_OVERRIDES += \
+    media.stagefright.use-awesome=true
+
 # Wifi
 PRODUCT_COPY_FILES += \
-    device/samsung/jflte/wpa_supplicant_overlay.conf:system/etc/wifi/wpa_supplicant_overlay.conf \
-    device/samsung/jflte/p2p_supplicant_overlay.conf:system/etc/wifi/p2p_supplicant_overlay.conf
+    device/samsung/jflte/configs/wpa_supplicant_overlay.conf:system/etc/wifi/wpa_supplicant_overlay.conf \
+    device/samsung/jflte/configs/p2p_supplicant_overlay.conf:system/etc/wifi/p2p_supplicant_overlay.conf
 
 # Media Profile
 PRODUCT_COPY_FILES += \
@@ -56,10 +60,17 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     gps.msm8960
 
-GPS_CONF := device/samsung/jflte/gps/gps.conf
+GPS_DIR := device/samsung/jflte/gps
 
 PRODUCT_COPY_FILES += \
-    $(GPS_CONF):/system/etc/gps.conf
+    $(GPS_DIR)/etc/gps.conf:/system/etc/gps.conf \
+    $(GPS_DIR)/etc/sap.conf:/system/etc/sap.conf
+
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.gps.agps_provider=1 \
+    ro.qc.sdk.izat.premium_enabled=0 \
+    ro.qc.sdk.izat.service_mask=0x0 \
+    persist.gps.qc_nlp_in_use=0
 
 # Keylayouts
 PRODUCT_COPY_FILES += \
@@ -82,15 +93,26 @@ PRODUCT_PACKAGES += \
     ueventd.qcom.rc
 
 # OmniTorch
-PRODUCT_PACKAGES += OmniTorch
+#PRODUCT_PACKAGES += OmniTorch
 
 # Wifi
 PRODUCT_PACKAGES += \
+#    mac-update \
+#    wcnss_service \
     libnetcmdiface \
     macloader \
+    libwpa_client \
+    hostapd \
+    dhcpcd.conf \
+    wpa_supplicant \
+    wpa_supplicant.conf
+
+# CRDA
+PRODUCT_PACKAGES += \
+    linville.key.pub.pem \
     crda \
     regulatory.bin \
-    linville.key.pub.pem
+    regdbdump
 
 # NFC packages
 PRODUCT_PACKAGES += \
@@ -139,7 +161,11 @@ PRODUCT_PACKAGES += qrngd
 # Prepatch to fix BT/WiFi bus lockups
 PRODUCT_COPY_FILES += device/samsung/jflte/bluetooth/bcm4335_prepatch.hcd:system/vendor/firmware/bcm4335_prepatch.hcd
 
-#common build.props
+# ril
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.telephony.ril_class=jflteRIL
+
+# common build.props
 PRODUCT_PROPERTY_OVERRIDES += \
     wifi.interface=wlan0 \
     ro.chipname=apq8064 \
@@ -182,7 +208,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.rild.nitz_short_ons_1="" \
     persist.rild.nitz_short_ons_2="" \
     persist.rild.nitz_short_ons_3="" \
-    ro.telephony.ril.v3=newDriverCall \
+    ro.telephony.ril.config=newDriverCallU,newDialCode \
     dalvik.vm.dexopt-data-only=0
 
 # Smart Cover
@@ -194,7 +220,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 $(call inherit-product, device/samsung/msm8960-common/msm8960.mk)
 
 # call dalvik heap config
-$(call inherit-product, device/samsung/jflte/configs/phone-xxhdpi-2048-dalvik-heap.mk)
+$(call inherit-product, frameworks/native/build/phone-xxhdpi-2048-dalvik-heap.mk)
 
 # call hwui memory config
-$(call inherit-product-if-exists, device/samsung/jflte/configs/phone-xxhdpi-2048-hwui-memory.mk)
+$(call inherit-product-if-exists, frameworks/native/build/phone-xxhdpi-2048-hwui-memory.mk)
